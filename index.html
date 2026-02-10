@@ -73,6 +73,8 @@ body {
   height: 120px;
   object-fit: contain;
   animation: float 3s ease-in-out infinite;
+  display: block;
+  margin: 0 auto;
 }
 
 .character-img.dudu {
@@ -186,6 +188,10 @@ button {
   box-shadow: 0 10px 40px rgba(255, 77, 109, 0.2);
   z-index: 200;
   animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  width: 90%;
+  max-width: 380px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 @keyframes popIn {
@@ -203,11 +209,13 @@ button {
 }
 
 .success-img {
-  width: 200px;
-  height: 200px;
+  width: 100%;
+  max-width: 200px;
+  height: auto;
   object-fit: contain;
   margin-bottom: 15px;
   animation: bounce 0.8s ease-in-out infinite;
+  display: block;
 }
 
 @keyframes bounce {
@@ -266,13 +274,16 @@ button {
   }
 
   .success-img {
-    width: 150px;
-    height: 150px;
+    max-width: 150px;
   }
 
   button {
     padding: 12px 20px;
     font-size: 14px;
+  }
+
+  .success-screen {
+    padding: 30px 20px;
   }
 }
 
@@ -295,12 +306,12 @@ button:focus {
   <div class="card" id="card">
     <div class="characters">
       <div class="character">
-        <img src="dudu peek.png" alt="Dudu Peek" class="character-img dudu">
+        <img src="./dudu peek.png" alt="Dudu Peek" class="character-img dudu" loading="lazy">
         <div class="character-name">Dudu</div>
       </div>
       <div class="heart">💕</div>
       <div class="character">
-        <img src="bubu peek.png" alt="Bubu Peek" class="character-img bubu">
+        <img src="./bubu peek.png" alt="Bubu Peek" class="character-img bubu" loading="lazy">
         <div class="character-name">Bubu</div>
       </div>
     </div>
@@ -324,7 +335,6 @@ const card = document.getElementById("card");
 let scale = 1;
 let moveCount = 0;
 
-// Create simple beep sound using Web Audio API
 function createBeepSound() {
   try {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -386,7 +396,7 @@ function showSuccess() {
   const successScreen = document.createElement("div");
   successScreen.className = "success-screen";
   successScreen.innerHTML = `
-    <img src="Bubu-Dudu-love.png" alt="Bubu-Dudu Love" class="success-img">
+    <img src="./Bubu-Dudu-love.png" alt="Bubu-Dudu Love" class="success-img" loading="lazy">
     <h1>YAY!! <span class="heart">💖</span></h1>
     <p>Happy Valentine's Day, Lovelove! 😘</p>
     <p>Dudu & Bubu are so happy for us! 💕</p>
