@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lovelove 💖</title>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  background: #ffe4e9;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  width: 320px;
+  text-align: center;
+}
+
+img { width: 180px; }
+
+button {
+  padding: 12px 22px;
+  font-size: 18px;
+  border-radius: 12px;
+  border: none;
+}
+
+#yes { background: #ff4d6d; color: white; }
+#no {
+  position: absolute;
+  background: #ccc;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card" id="card">
+  <img src="https://media.tenor.com/6f3p0x6p8HkAAAAi/dudu-bubu-love.gif">
+  <h2>Mavic 💕</h2>
+  <p>Lovelove, will you be my Valentine?</p>
+  <button id="yes">Yes 💘</button>
+</div>
+
+<button id="no">No 💔</button>
+
+<audio id="pop" src="https://www.myinstants.com/media/sounds/pop.mp3"></audio>
+
+<script>
+const noBtn = document.getElementById("no");
+const pop = document.getElementById("pop");
+let scale = 1;
+
+function moveNo() {
+  pop.play();
+  scale -= 0.1;
+  if (scale < 0.4) scale = 0.4;
+  noBtn.style.transform = `scale(${scale})`;
+
+  noBtn.style.left = Math.random() * (window.innerWidth - 80) + "px";
+  noBtn.style.top = Math.random() * (window.innerHeight - 80) + "px";
+}
+
+noBtn.addEventListener("touchstart", moveNo);
+noBtn.addEventListener("mouseenter", moveNo);
+
+document.getElementById("yes").onclick = () => {
+  document.body.innerHTML = `
+    <div class="card">
+      <img src="https://media.tenor.com/Xx9ZQ7aYgFcAAAAi/dudu-bubu-hug.gif">
+      <h1>YAY!! 💖</h1>
+      <p>Happy Valentine’s Day, Lovelove 😘</p>
+    </div>`;
+};
+
+moveNo();
+</script>
+</body>
+</html>
