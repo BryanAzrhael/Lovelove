@@ -115,6 +115,27 @@ h1 {
   margin: 0 5px;
 }
 
+.character-heart {
+  display: inline-block;
+  font-size: 42px;
+  line-height: 1;
+  margin: 0 2px;
+  filter: drop-shadow(0 4px 10px rgba(255, 77, 109, 0.35));
+  animation: heartBeat 1.2s ease-in-out infinite;
+}
+
+@keyframes heartBeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.12);
+  }
+  60% {
+    transform: scale(0.95);
+  }
+}
+
 p {
   color: #666;
   font-size: 16px;
@@ -160,16 +181,12 @@ button {
 }
 
 #no {
-  position: fixed;
-  background: #ccc;
+  position: relative;
+  background: linear-gradient(135deg, #d9d9d9 0%, #bfbfbf 100%);
   color: #333;
-  padding: 12px 20px;
-  font-size: 14px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  flex: 1;
+  min-width: 120px;
   cursor: pointer;
-  z-index: 50;
-  display: block !important;
-  visibility: visible !important;
 }
 
 #no:hover {
@@ -313,7 +330,7 @@ button:focus {
         <img src="./dudu peek.png" alt="Dudu Peek" class="character-img dudu" loading="lazy">
         <div class="character-name">Dudu</div>
       </div>
-      <div class="heart">💕</div>
+      <div class="character-heart" aria-hidden="true">💖</div>
       <div class="character">
         <img src="./bubu peek.png" alt="Bubu Peek" class="character-img bubu" loading="lazy">
         <div class="character-name">Bubu</div>
@@ -325,10 +342,9 @@ button:focus {
     
     <div class="button-container">
       <button id="yes" aria-label="Accept Valentine proposal">Yes 💘</button>
+      <button id="no" aria-label="Decline Valentine proposal">No 💔</button>
     </div>
   </div>
-
-  <button id="no" aria-label="Decline Valentine proposal">No 💔</button>
 </div>
 
 <script>
@@ -338,6 +354,8 @@ const card = document.getElementById("card");
 
 let scale = 1;
 let moveCount = 0;
+let isNoHaywire = false;
+let noPointerActive = false;
 
 function createBeepSound() {
   try {
@@ -362,35 +380,42 @@ function createBeepSound() {
 }
 
 function moveNo() {
+  if (!isNoHaywire) {
+    isNoHaywire = true;
+    noBtn.style.position = "fixed";
+    noBtn.style.zIndex = "50";
+    noBtn.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.2)";
+  }
+
   moveCount++;
-  
   createBeepSound();
 
-  scale -= 0.1;
-  if (scale < 0.3) scale = 0.3;
+  scale = Math.max(scale - 0.1, 0.3);
   noBtn.style.transform = `scale(${scale})`;
 
-  const buttonWidth = 80;
-  const buttonHeight = 50;
-  const maxX = Math.max(window.innerWidth - buttonWidth, 0);
-  const maxY = Math.max(window.innerHeight - buttonHeight, 0);
-  
-  const randomX = Math.random() * maxX;
-  const randomY = Math.random() * maxY;
-  
-  noBtn.style.left = randomX + "px";
-  noBtn.style.top = randomY + "px";
+  const buttonRect = noBtn.getBoundingClientRect();
+  const maxX = Math.max(window.innerWidth - buttonRect.width, 0);
+  const maxY = Math.max(window.innerHeight - buttonRect.height, 0);
+
+  noBtn.style.left = Math.random() * maxX + "px";
+  noBtn.style.top = Math.random() * maxY + "px";
 
   if (moveCount > 5 && Math.random() > 0.7) {
     noBtn.textContent = "Try again 😄";
   }
 }
 
-noBtn.addEventListener("mouseenter", moveNo);
-noBtn.addEventListener("touchstart", (e) => {
-  e.preventDefault();
+noBtn.addEventListener("pointerdown", (event) => {
+  if (noPointerActive) return;
+
+  noPointerActive = true;
+  event.preventDefault();
   moveNo();
-}, { passive: false });
+
+  requestAnimationFrame(() => {
+    noPointerActive = false;
+  });
+});
 
 yesBtn.addEventListener("click", showSuccess);
 
@@ -432,7 +457,6 @@ function createConfetti() {
   }
 }
 
-moveNo();
 </script>
 
 </body>
