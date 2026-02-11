@@ -1,9 +1,75 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/index.html b/index.html
-index 5d53e55235f3fb594a1015190f3aea0747e95383..f82a5b23088b1eca9bdc850a63202ac5841f958f 100644
+index 5d53e55235f3fb594a1015190f3aea0747e95383..cdc261d5daef6ab4da97fc601d2c52966c74e1b0 100644
 --- a/index.html
 +++ b/index.html
-@@ -138,60 +138,56 @@ button {
+@@ -93,105 +93,122 @@ body {
+     transform: translateY(-15px);
+   }
+ }
+ 
+ .character-name {
+   font-size: 14px;
+   color: #ff4d6d;
+   font-weight: bold;
+   margin-top: 8px;
+ }
+ 
+ h1 {
+   color: #ff4d6d;
+   font-size: 28px;
+   margin: 15px 0 10px;
+   letter-spacing: 1px;
+ }
+ 
+ .heart {
+   display: inline-block;
+   color: #ff4d6d;
+   font-size: 24px;
+   margin: 0 5px;
+ }
+ 
++.character-heart {
++  display: inline-block;
++  font-size: 42px;
++  line-height: 1;
++  margin: 0 2px;
++  filter: drop-shadow(0 4px 10px rgba(255, 77, 109, 0.35));
++  animation: heartBeat 1.2s ease-in-out infinite;
++}
++
++@keyframes heartBeat {
++  0%, 100% {
++    transform: scale(1);
++  }
++  30% {
++    transform: scale(1.12);
++  }
++  60% {
++    transform: scale(0.95);
++  }
++}
++
+ p {
+   color: #666;
+   font-size: 16px;
+   margin: 20px 0;
+   line-height: 1.5;
+ }
+ 
+ .button-container {
+   display: flex;
+   gap: 15px;
+   margin-top: 30px;
+   flex-wrap: wrap;
+   justify-content: center;
+ }
+ 
+ button {
+   padding: 14px 28px;
+   font-size: 16px;
+   border-radius: 15px;
+   border: none;
    font-weight: bold;
    cursor: pointer;
    transition: all 0.3s ease;
@@ -68,7 +134,19 @@ index 5d53e55235f3fb594a1015190f3aea0747e95383..f82a5b23088b1eca9bdc850a63202ac5
    display: flex;
    flex-direction: column;
    align-items: center;
-@@ -303,137 +299,143 @@ button:focus {
+@@ -291,149 +308,156 @@ button {
+   }
+ }
+ 
+ button:focus {
+   outline: 3px solid #ff4d6d;
+   outline-offset: 2px;
+ }
+ 
+ @media (prefers-reduced-motion: reduce) {
+   * {
+     animation: none !important;
+   }
  }
  </style>
  </head>
@@ -82,7 +160,8 @@ index 5d53e55235f3fb594a1015190f3aea0747e95383..f82a5b23088b1eca9bdc850a63202ac5
          <img src="./dudu peek.png" alt="Dudu Peek" class="character-img dudu" loading="lazy">
          <div class="character-name">Dudu</div>
        </div>
-       <div class="heart">💕</div>
+-      <div class="heart">💕</div>
++      <div class="character-heart" aria-hidden="true">💖</div>
        <div class="character">
          <img src="./bubu peek.png" alt="Bubu Peek" class="character-img bubu" loading="lazy">
          <div class="character-name">Bubu</div>
@@ -109,6 +188,7 @@ index 5d53e55235f3fb594a1015190f3aea0747e95383..f82a5b23088b1eca9bdc850a63202ac5
  let scale = 1;
  let moveCount = 0;
 +let isNoHaywire = false;
++let noPointerActive = false;
  
  function createBeepSound() {
    try {
@@ -141,23 +221,30 @@ index 5d53e55235f3fb594a1015190f3aea0747e95383..f82a5b23088b1eca9bdc850a63202ac5
 +  }
 +
    moveCount++;
-   
+-  
    createBeepSound();
  
-   scale -= 0.1;
-   if (scale < 0.3) scale = 0.3;
+-  scale -= 0.1;
+-  if (scale < 0.3) scale = 0.3;
++  scale = Math.max(scale - 0.1, 0.3);
    noBtn.style.transform = `scale(${scale})`;
  
-   const buttonWidth = 80;
-   const buttonHeight = 50;
-   const maxX = Math.max(window.innerWidth - buttonWidth, 0);
-   const maxY = Math.max(window.innerHeight - buttonHeight, 0);
-   
-   const randomX = Math.random() * maxX;
-   const randomY = Math.random() * maxY;
-   
-   noBtn.style.left = randomX + "px";
-   noBtn.style.top = randomY + "px";
+-  const buttonWidth = 80;
+-  const buttonHeight = 50;
+-  const maxX = Math.max(window.innerWidth - buttonWidth, 0);
+-  const maxY = Math.max(window.innerHeight - buttonHeight, 0);
+-  
+-  const randomX = Math.random() * maxX;
+-  const randomY = Math.random() * maxY;
+-  
+-  noBtn.style.left = randomX + "px";
+-  noBtn.style.top = randomY + "px";
++  const buttonRect = noBtn.getBoundingClientRect();
++  const maxX = Math.max(window.innerWidth - buttonRect.width, 0);
++  const maxY = Math.max(window.innerHeight - buttonRect.height, 0);
++
++  noBtn.style.left = Math.random() * maxX + "px";
++  noBtn.style.top = Math.random() * maxY + "px";
  
    if (moveCount > 5 && Math.random() > 0.7) {
      noBtn.textContent = "Try again 😄";
@@ -165,11 +252,20 @@ index 5d53e55235f3fb594a1015190f3aea0747e95383..f82a5b23088b1eca9bdc850a63202ac5
  }
  
 -noBtn.addEventListener("mouseenter", moveNo);
-+noBtn.addEventListener("click", moveNo);
- noBtn.addEventListener("touchstart", (e) => {
-   e.preventDefault();
+-noBtn.addEventListener("touchstart", (e) => {
+-  e.preventDefault();
++noBtn.addEventListener("pointerdown", (event) => {
++  if (noPointerActive) return;
++
++  noPointerActive = true;
++  event.preventDefault();
    moveNo();
- }, { passive: false });
+-}, { passive: false });
++
++  requestAnimationFrame(() => {
++    noPointerActive = false;
++  });
++});
  
  yesBtn.addEventListener("click", showSuccess);
  
